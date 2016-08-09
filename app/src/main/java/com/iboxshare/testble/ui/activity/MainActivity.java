@@ -19,8 +19,10 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.iboxshare.testble.R;
 import com.iboxshare.testble.adapter.DevicesAdapter;
@@ -84,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bindView();
         init();
         initCallback();
-
     }
 
     @Override
@@ -123,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //为EasyRecyclerView设置LayoutManager
         easyRecyclerView.setLayoutManager(linearLayoutManager);
         //为DevicesAdapter设置数据
-        deviceAdapter.setData(deviceInfoList);
+        deviceAdapter.setData(deviceInfoList,context);
 
         //针对Android M及以上设备申请权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -232,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (devicesHashMap.containsKey(mac)){
             for (DeviceInfo device : deviceInfoList){
                 if (device.getMac().equals(mac)){
-                    device.setMac(mac);
+                    device.setSignal(signalStrength);
                 }
             }
         }

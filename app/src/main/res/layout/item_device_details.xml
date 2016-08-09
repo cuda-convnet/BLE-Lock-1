@@ -29,7 +29,7 @@
         android:id="@+id/item_device_details_signal"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:src="@drawable/ic_signal_cellular_0_bar_blue_300_24dp"
+        android:src="@drawable/ic_signal_cellular_0_bar_blue_300_48dp"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="15dp"
         android:layout_marginTop="5dp"/>
