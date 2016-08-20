@@ -18,19 +18,4 @@
         android:layout_height="match_parent"
         app:layout_progress="@layout/view_progress"
         />
-    <com.dd.processbutton.iml.ActionProcessButton
-        android:id="@+id/activity_main_APB_unlock"
-        android:layout_marginLeft="50dp"
-        android:layout_marginStart="50dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="开锁"
-        android:textColor="@color/white"
-        custom:pb_colorNormal="@color/blue_normal"
-        custom:pb_colorPressed="@color/blue_pressed"
-        custom:pb_colorComplete="@color/green_complete"
-        custom:pb_colorProgress="@color/purple_progress"
-        custom:pb_colorError="@color/red_error"
-        android:visibility="gone"/>
 </RelativeLayout>

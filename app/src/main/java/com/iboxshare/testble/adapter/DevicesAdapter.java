@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.iboxshare.testble.R;
 import com.iboxshare.testble.model.DeviceInfo;
+import com.iboxshare.testble.myInterface.RecyclerViewOnItemClickListener;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,10 +20,11 @@ import java.util.List;
 /**
  * Created by KN on 16/8/8.
  */
-public class DevicesAdapter extends RecyclerView.Adapter<DevicesViewHolder> {
+public class DevicesAdapter extends RecyclerView.Adapter<DevicesViewHolder> implements View.OnClickListener{
     private List<DeviceInfo> list;
     private HashMap<String,DeviceInfo> deviceHashMap;
     private Context context;
+    private RecyclerViewOnItemClickListener clickListener;
     public void setData(List<DeviceInfo> data, Context context){
         this.list = data;
         this.context = context;
@@ -31,6 +33,7 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesViewHolder> {
     @Override
     public DevicesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_device_details,parent,false);
+        view.setOnClickListener(this);
         return new DevicesViewHolder(view);
     }
 
@@ -65,6 +68,8 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesViewHolder> {
                         .into(holder.signal);
                 Log.e("SignalLevel===","1");
             }
+        //设置Tag来记录位置
+        holder.mac.setTag(position);
 
 
         Log.e("Signal", String.valueOf(signalStrength));
@@ -77,6 +82,15 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesViewHolder> {
         return list.size();
     }
 
+
+    @Override
+    public void onClick(View v) {
+        if (clickListener != null)clickListener.onItemClick(v);
+    }
+
+    public void setOnItemClickListener(RecyclerViewOnItemClickListener listener){
+        this.clickListener = listener;
+    }
 }
 
 
