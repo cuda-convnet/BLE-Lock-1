@@ -1,5 +1,7 @@
 package com.iboxshare.testble.util;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.iboxshare.testble.model.UserInfo;
@@ -36,14 +38,19 @@ public class PostTool {
                 .add("userName",userName)
                 .add("passWord",passWord)
                 .build();
-        request = new Request.Builder().url("test").post(requestBody).build();
+        request = new Request.Builder().url(API_URL.LOGIN_URL).post(requestBody).build();
         UserInfo user = new UserInfo();
         try {
             response = client.newCall(request).execute();
             if (response.isSuccessful()){
-                JSONObject jsonObject = new JSONObject(response.body().string());
+                //You can only call string() once.否则这里会报错
+                String resultJson = response.body().string();
+                Log.e("返回结果", resultJson);
+                JSONObject jsonObject = new JSONObject(resultJson);
                 //获取结果码
                 int resultCode = jsonObject.getInt("result");
+                String user_info = jsonObject.getString("user_info");
+                String token = jsonObject.getString("token");
                 switch (resultCode){
                     //登录失败
                     case -1:
@@ -52,7 +59,8 @@ public class PostTool {
                     //登录成功
                     case 1:
                         Gson gson = new Gson();
-                        user = gson.fromJson(response.body().string(),new TypeToken<UserInfo>(){}.getType());
+                        user = gson.fromJson(user_info,new TypeToken<UserInfo>(){}.getType());
+                        user.setToken(token);
                         return user;
                 }
             }
@@ -76,7 +84,7 @@ public class PostTool {
                 .add("nickName",nickName)
                 .add("passWord",passWord)
                 .build();
-        request = new Request.Builder().url("test").post(requestBody).build();
+        request = new Request.Builder().url(API_URL.REGISTER_URL).post(requestBody).build();
         try {
             response = client.newCall(request).execute();
             if (response.isSuccessful()){
@@ -112,7 +120,7 @@ public class PostTool {
         requestBody = new FormBody.Builder()
                 .add("token",token)
                 .build();
-        request = new Request.Builder().url("test").post(requestBody).build();
+        request = new Request.Builder().url(API_URL.TOKEN_LOGIN_URL).post(requestBody).build();
         UserInfo user = new UserInfo();
         try {
             response = client.newCall(request).execute();
@@ -120,6 +128,7 @@ public class PostTool {
                 JSONObject jsonObject = new JSONObject(response.body().string());
                 //获取结果码
                 int resultCode = jsonObject.getInt("result");
+                String userInfoJson = jsonObject.getString("user_info");
                 switch (resultCode){
                     //登录失败
                     case -1:
@@ -128,7 +137,8 @@ public class PostTool {
                     //登录成功
                     case 1:
                         Gson gson = new Gson();
-                        user = gson.fromJson(response.body().string(),new TypeToken<UserInfo>(){}.getType());
+                        user = gson.fromJson(userInfoJson,new TypeToken<UserInfo>(){}.getType());
+                        user.setToken(token);
                         return user;
                 }
             }

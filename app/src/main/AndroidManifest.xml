@@ -3,6 +3,7 @@
     package="com.iboxshare.testble">
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission-sdk-23 android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission-sdk-23 android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <application
@@ -12,18 +13,35 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".ui.activity.LoginActivity">
+        <!--加载界面-->
+        <activity android:name=".ui.activity.SplashActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <!--登录界面-->
+        <activity android:name=".ui.activity.LoginActivity"/>
 
-        <activity android:name=".ui.activity.MainActivity"/>
+        <!--添加设备界面-->
+        <activity android:name=".ui.activity.AddDeviceActivity">
+
+        </activity>
+
+        <!--主界面-->
+        <activity android:name=".ui.activity.MainActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+
+        </activity>
 
 
+        <!--我的设备界面-->
+        <activity android:name=".ui.activity.MyDevicesActivity"/>
 
+        <!--解锁界面-->
+        <activity android:name=".ui.activity.UnlockActivity"/>
     </application>
 
 </manifest>

@@ -1,6 +1,8 @@
 package com.iboxshare.testble.ui.activity;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -8,14 +10,14 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.Toast;
-
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.iboxshare.testble.R;
 import com.iboxshare.testble.model.UserInfo;
 import com.iboxshare.testble.util.PostTool;
+import com.iboxshare.testble.util.Utils;
 
 /**
  * Created by KN on 16/8/21.
@@ -40,7 +42,14 @@ public class LoginActivity extends AppCompatActivity {
 
                 //登陆成功
                 case 1:
+                    Utils.userProfilesEdit(context,Utils.USER_PROFILES_TOKEN,user.getToken());
                     loginBtn.setProgress(100);
+                    Intent intent = new Intent(context,MainActivity.class);
+                    Bundle data = new Bundle();
+                    data.putSerializable("user",user);
+                    intent.putExtras(data);
+                    startActivity(intent);
+                    Log.e(TAG,user.getUser_name() + "===" +user.getNick_name() + "===" + user.getToken());
                     break;
             }
         }
@@ -80,6 +89,7 @@ public class LoginActivity extends AppCompatActivity {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
+                            Log.e(TAG,userName + "===" + password);
                             user = PostTool.login(userName,password);
                             if (user.getToken() != null){
                                 //登录成功
@@ -97,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private String getTextFromTIL(TextInputLayout v){
-        return v.getEditText().getText().toString();
+            return v.getEditText().getText().toString();
     }
 
     private void showSnackbar(String str){

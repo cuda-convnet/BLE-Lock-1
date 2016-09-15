@@ -8,7 +8,7 @@ import java.util.List;
  * Created by KN on 16/8/22.
  */
 public class UserInfo implements Serializable {
-    private String user_name = null;
+    private String user_name = "test";
     private String nick_name = null;
     private String token = null;
     private List<String> mac = new ArrayList<>();

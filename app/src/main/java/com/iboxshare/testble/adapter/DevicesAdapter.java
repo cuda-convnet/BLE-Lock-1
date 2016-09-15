@@ -20,19 +20,20 @@ import java.util.List;
 /**
  * Created by KN on 16/8/8.
  */
-public class DevicesAdapter extends RecyclerView.Adapter<DevicesViewHolder> implements View.OnClickListener{
+public class DevicesAdapter extends RecyclerView.Adapter<DevicesViewHolder> implements View.OnClickListener {
     private List<DeviceInfo> list;
-    private HashMap<String,DeviceInfo> deviceHashMap;
+    private HashMap<String, DeviceInfo> deviceHashMap;
     private Context context;
     private RecyclerViewOnItemClickListener clickListener;
-    public void setData(List<DeviceInfo> data, Context context){
+
+    public void setData(Context context, List<DeviceInfo> data) {
         this.list = data;
         this.context = context;
     }
 
     @Override
     public DevicesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_device_details,parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_device_details, parent, false);
         view.setOnClickListener(this);
         return new DevicesViewHolder(view);
     }
@@ -42,32 +43,35 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesViewHolder> impl
         DeviceInfo deviceInfo = list.get(position);
         int signalStrength = deviceInfo.getSignal();
 
+        holder.signal.setVisibility(View.VISIBLE);
         //更新信号强度
-            if (signalStrength > -70 && signalStrength <= 0){
-                Glide.with(context)
-                        .load(R.drawable.ic_signal_cellular_4_bar_blue_300_48dp)
-                        .asBitmap()
-                        .into(holder.signal);
-                Log.e("SignalLevel===","4");
-            }else if (signalStrength > -90 && signalStrength <= -70){
-                Glide.with(context)
-                        .load(R.drawable.ic_signal_cellular_3_bar_blue_300_48dp)
-                        .asBitmap()
-                        .into(holder.signal);
-                Log.e("SignalLevel===","3");
-            }else if (signalStrength > -110 && signalStrength <= -90){
-                Glide.with(context)
-                        .load(R.drawable.ic_signal_cellular_2_bar_blue_300_48dp)
-                        .asBitmap()
-                        .into(holder.signal);
-                Log.e("SignalLevel===","2");
-            }else {
-                Glide.with(context)
-                        .load(R.drawable.ic_signal_cellular_1_bar_blue_300_48dp)
-                        .asBitmap()
-                        .into(holder.signal);
-                Log.e("SignalLevel===","1");
-            }
+        if (signalStrength == -999) {
+            holder.signal.setVisibility(View.INVISIBLE);
+        } else if (signalStrength > -70 && signalStrength <= 0) {
+            Glide.with(context)
+                    .load(R.drawable.ic_signal_cellular_4_bar_blue_300_48dp)
+                    .asBitmap()
+                    .into(holder.signal);
+            Log.e("SignalLevel===", "4");
+        } else if (signalStrength > -90 && signalStrength <= -70) {
+            Glide.with(context)
+                    .load(R.drawable.ic_signal_cellular_3_bar_blue_300_48dp)
+                    .asBitmap()
+                    .into(holder.signal);
+            Log.e("SignalLevel===", "3");
+        } else if (signalStrength > -110 && signalStrength <= -90) {
+            Glide.with(context)
+                    .load(R.drawable.ic_signal_cellular_2_bar_blue_300_48dp)
+                    .asBitmap()
+                    .into(holder.signal);
+            Log.e("SignalLevel===", "2");
+        } else {
+            Glide.with(context)
+                    .load(R.drawable.ic_signal_cellular_1_bar_blue_300_48dp)
+                    .asBitmap()
+                    .into(holder.signal);
+            Log.e("SignalLevel===", "1");
+        }
         //设置Tag来记录位置
         holder.mac.setTag(position);
 
@@ -85,18 +89,19 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesViewHolder> impl
 
     @Override
     public void onClick(View v) {
-        if (clickListener != null)clickListener.onItemClick(v);
+        if (clickListener != null) clickListener.onItemClick(v);
     }
 
-    public void setOnItemClickListener(RecyclerViewOnItemClickListener listener){
+    public void setOnItemClickListener(RecyclerViewOnItemClickListener listener) {
         this.clickListener = listener;
     }
 }
 
 
-class DevicesViewHolder extends RecyclerView.ViewHolder{
-    public ImageView ico,signal;
-    public TextView name,mac;
+class DevicesViewHolder extends RecyclerView.ViewHolder {
+    public ImageView ico, signal;
+    public TextView name, mac;
+
     public DevicesViewHolder(View itemView) {
         super(itemView);
         ico = (ImageView) itemView.findViewById(R.id.item_device_details_ico);

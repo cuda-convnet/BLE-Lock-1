@@ -5,8 +5,10 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -232,6 +234,127 @@ public class BLEUtils {
 
         String string = (a * 256 + c) + "年" + month_1 + "月" + day_1 + "日" + hour_1 + "时" + min_1 + "分";
         return string;
+    }
+
+
+
+    /**
+     * 列出所有服务
+     *
+     * @param gattServices GattServices
+     */
+    public static void displayGattServices(List<BluetoothGattService> gattServices,BluetoothLeClass BLE) {
+        if (gattServices == null) {
+            Log.e("Service列表为空", "========");
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
+
+        BluetoothGattCharacteristic Characteristic_cur = null;
+
+        for (BluetoothGattService gattService : gattServices) {
+            // -----Service的字段信息----//
+            int type = gattService.getType();
+            Log.e("info", "-->service type:" + BLEUtils.getServiceType(type));
+            Log.e("info", "-->includedServices size:"
+                    + gattService.getIncludedServices().size());
+            Log.e("info", "-->service uuid:" + gattService.getUuid());
+
+            // -----Characteristics的字段信息----//
+            List<BluetoothGattCharacteristic> gattCharacteristics = gattService
+                    .getCharacteristics();
+            for (final BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
+                Log.e("info", "---->char uuid:" + gattCharacteristic.getUuid());
+
+                int permission = gattCharacteristic.getPermissions();
+                Log.e("info",
+                        "---->char permission:"
+                                + BLEUtils.getCharPermission(permission));
+
+                int property = gattCharacteristic.getProperties();
+                Log.e("info",
+                        "---->char property:"
+                                + BLEUtils.getCharPropertie(property));
+
+                byte[] data = gattCharacteristic.getValue();
+                if (data != null && data.length > 0) {
+                    Log.e("info", "---->char value:" + new String(data));
+                }
+
+                if (gattCharacteristic.getUuid().toString().equals(Constant.UUID_CHAR6)) {
+                    // 把char1 保存起来以方便后面读写数据时使用
+                    Constant.gattCharacteristic_char = gattCharacteristic;
+                    Characteristic_cur = gattCharacteristic;
+                    BLE.setCharacteristicNotification(gattCharacteristic, true);
+                    Log.i("info", "+++++++++UUID_CHAR");
+                }
+
+                if (gattCharacteristic.getUuid().toString()
+                        .equals(Constant.UUID_HERATRATE)) {
+                    // 把heartrate 保存起来以方便后面读写数据时使用
+                    Constant.gattCharacteristic_heartrate = gattCharacteristic;
+                    Characteristic_cur = gattCharacteristic;
+                    BLE.setCharacteristicNotification(gattCharacteristic, true);
+                    Log.i("info", "+++++++++UUID_HERATRATE");
+                }
+
+                if (gattCharacteristic.getUuid().toString()
+                        .equals(Constant.UUID_KEY_DATA)) {
+                    // 把heartrate 保存起来以方便后面读写数据时使用
+                    Constant.gattCharacteristic_keydata = gattCharacteristic;
+                    Characteristic_cur = gattCharacteristic;
+                    BLE.setCharacteristicNotification(gattCharacteristic, true);
+                    Log.i("info", "+++++++++UUID_KEY_DATA");
+                }
+
+                if (gattCharacteristic.getUuid().toString()
+                        .equals(Constant.UUID_TEMPERATURE)) {
+                    // 把heartrate 保存起来以方便后面读写数据时使用
+                    Constant.gattCharacteristic_temperature = gattCharacteristic;
+                    Characteristic_cur = gattCharacteristic;
+                    BLE.setCharacteristicNotification(gattCharacteristic, true);
+                    Log.i("info", "+++++++++UUID_TEMPERATURE");
+                }
+
+                // -----Descriptors的字段信息----//
+                List<BluetoothGattDescriptor> gattDescriptors = gattCharacteristic
+                        .getDescriptors();
+                for (BluetoothGattDescriptor gattDescriptor : gattDescriptors) {
+                    Log.e("info", "-------->desc uuid:" + gattDescriptor.getUuid());
+                    int descPermission = gattDescriptor.getPermissions();
+                    Log.e("info",
+                            "-------->desc permission:"
+                                    + BLEUtils.getDescPermission(descPermission));
+
+                    byte[] desData = gattDescriptor.getValue();
+                    if (desData != null && desData.length > 0) {
+                        Log.e("info", "-------->desc value:" + new String(desData));
+                    }
+                }
+            }
+        }
+
+    }
+
+
+
+    /**
+     * 写入bytes数据
+     *
+     * @param bytes bytes数据
+     */
+    public static void writeChar(byte[] bytes,BluetoothLeClass BLE) {
+        Log.e("writeChar", "Message = " + Arrays.toString(bytes));
+        if (Constant.gattCharacteristic_char != null) {
+            Constant.gattCharacteristic_char.setValue(bytes);
+            BLE.writeCharacteristic(Constant.gattCharacteristic_char);
+        } else {
+            Log.e("错误", "gattCharacteristic_char为空");
+        }
     }
 
 }

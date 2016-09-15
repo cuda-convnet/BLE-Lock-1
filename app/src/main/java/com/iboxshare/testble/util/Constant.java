@@ -1,9 +1,20 @@
 package com.iboxshare.testble.util;
 
+import android.bluetooth.BluetoothGattCharacteristic;
+
 /**
  * Created by Rocky on 2016/5/30.
  */
 public class Constant {
+    public static BluetoothGattCharacteristic gattCharacteristic_char = null;
+    public static BluetoothGattCharacteristic gattCharacteristic_heartrate = null;
+    public static BluetoothGattCharacteristic gattCharacteristic_keydata = null;
+    public static BluetoothGattCharacteristic gattCharacteristic_temperature = null;
+    //初始化变量
+    public static String UUID_KEY_DATA = "0000ffe1-0000-1000-8000-00805f9b34fb";
+    public static String UUID_CHAR6 = "0000fff6-0000-1000-8000-00805f9b34fb";
+    public static String UUID_HERATRATE = "00002a37-0000-1000-8000-00805f9b34fb";
+    public static String UUID_TEMPERATURE = "00002a1c-0000-1000-8000-00805f9b34fb";
 
     //全局常量
     //结束字符

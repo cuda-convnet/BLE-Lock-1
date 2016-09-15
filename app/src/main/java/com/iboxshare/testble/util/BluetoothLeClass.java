@@ -243,4 +243,17 @@ public class BluetoothLeClass{
 
         return mBluetoothGatt.getServices();
     }
+
+
+    /**
+     * 返回BluetoothManager
+     * @return
+     */
+    public BluetoothManager getBluetoothManager(){
+        return mBluetoothManager;
+    }
+
+    public BluetoothAdapter getBluetoothAdapter(){
+        return mBluetoothAdapter;
+    }
 }
