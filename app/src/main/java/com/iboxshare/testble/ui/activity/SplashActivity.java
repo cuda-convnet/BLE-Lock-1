@@ -43,6 +43,7 @@ public class SplashActivity extends AppCompatActivity{
                     data.putSerializable("user",user);
                     intent.putExtras(data);
                     startActivity(intent);
+                    finish();
                     break;
             }
         }

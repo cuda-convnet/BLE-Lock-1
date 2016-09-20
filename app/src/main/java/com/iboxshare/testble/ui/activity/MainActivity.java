@@ -15,6 +15,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.View;
 
+import com.bumptech.glide.util.Util;
 import com.iboxshare.testble.R;
 import com.iboxshare.testble.adapter.DevicesAdapter;
 import com.iboxshare.testble.model.DeviceInfo;
@@ -22,6 +23,8 @@ import com.iboxshare.testble.model.UserInfo;
 import com.iboxshare.testble.myInterface.RecyclerViewOnItemClickListener;
 import com.iboxshare.testble.util.BLEUtils;
 import com.iboxshare.testble.util.BluetoothLeClass;
+import com.iboxshare.testble.util.Constant;
+import com.iboxshare.testble.util.Utils;
 import com.jude.easyrecyclerview.EasyRecyclerView;
 
 import java.util.ArrayList;
@@ -44,12 +47,12 @@ public class MainActivity extends AppCompatActivity {
     //蓝牙相关
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothManager bluetoothManager;
-    private static BluetoothLeClass BLE;
+    public static BluetoothLeClass BLE;
 
     //回调相关
-    private BluetoothAdapter.LeScanCallback leScanCallback;
-    private BluetoothLeClass.OnDataAvailableListener onDataAvailableListener;
-    private BluetoothLeClass.OnServiceDiscoverListener onServiceDiscoverListener;
+    public static BluetoothAdapter.LeScanCallback leScanCallback;
+    public static BluetoothLeClass.OnDataAvailableListener onDataAvailableListener;
+    public static BluetoothLeClass.OnServiceDiscoverListener onServiceDiscoverListener;
 
     /**
      * onCreate
@@ -98,7 +101,35 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         Log.e(TAG,"onDestroy");
         BLE.disconnect();
+
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (resultCode){
+            case 0:
+                //没有设置密码
+                Log.e(TAG,"没有设置触屏密码");
+                break;
+            case 1:
+                //设置了触屏密码
+                int password = data.getIntExtra("password",0);
+                if (password == 0){
+                    Utils.showGlobalToast(context,"未知错误");
+                }else {
+                    BLEUtils.writeChar(BLEUtils.hexStringToBytes(Constant.HEAD_CHAR
+                            + Constant.SEVER_BLUETOOTH
+                            + "01"
+                            + "0b"
+                            + BLEUtils.toHexString("123456")
+                            + Constant.END_CHAR),MainActivity.BLE);
+                }
+                break;
+        }
+    }
+
+
 
     /**
      * 绑定组件
@@ -165,6 +196,13 @@ public class MainActivity extends AppCompatActivity {
                     Log.e(TAG,"连接成功!");
                     BLE.setOnServiceDiscoverListener(onServiceDiscoverListener);
                     BLE.setOnDataAvailableListener(onDataAvailableListener);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    //BLEUtils.writeChar(BLEUtils.hexStringToBytes(Constant.HEAD_CHAR + "01" + "05" + BLEUtils.toHexString("123456789abcdefg") + Constant.END_CHAR),MainActivity.BLE);
+
                     Intent intent = new Intent(context,UnlockActivity.class);
                     startActivity(intent);
 
@@ -221,6 +259,38 @@ public class MainActivity extends AppCompatActivity {
             public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
                 String str = BLEUtils.bytesToHexString(characteristic.getValue());
                 Log.e("终端写入数据回调", str);
+                switch (str){
+
+                    //请录入指纹
+                    case "aa020b050d":
+                        Utils.showGlobalToast(context,"请设置指纹");
+                        break;
+
+                    //添加指纹成功
+                    case "aa020c050d":
+                        Utils.showGlobalToast(context,"添加指纹成功");
+                        break;
+
+                    //设置触屏密码
+                    case "aa0200050d":
+                        Utils.showGlobalToast(context,"请设置触屏密码");
+                        Intent intent = new Intent(context,SetScreenPasswordActivity.class);
+                        startActivityForResult(intent,1);
+                        break;
+                    //设置触屏密码成功
+                    case "aa0202050d":
+                        Utils.showGlobalToast(context,"触屏密码设置成功");
+                        Log.e(TAG,"触屏密码设置成功");
+                        break;
+
+                    //请进行开锁操作
+                    case "aa020f050d":
+                        Utils.showGlobalToast(context,"请进行开锁操作");
+                        break;
+                    case "aa0210050d":
+                        Utils.showGlobalToast(context,"开锁成功!");
+                        break;
+                }
             }
         };
     }
@@ -230,10 +300,13 @@ public class MainActivity extends AppCompatActivity {
      */
     void scanDevices(boolean enable){
 
-        if (enable && bluetoothAdapter != null){
-            bluetoothAdapter.startLeScan(leScanCallback);
-        }else{
-            bluetoothAdapter.stopLeScan(leScanCallback);
+        if (bluetoothAdapter != null){
+            if (enable){
+                bluetoothAdapter.startLeScan(leScanCallback);
+
+            }else {
+                bluetoothAdapter.stopLeScan(leScanCallback);
+            }
         }
     }
 
@@ -254,5 +327,20 @@ public class MainActivity extends AppCompatActivity {
             //通知设备信息更新
             adapter.notifyDataSetChanged();
         }
+    }
+
+
+    /**
+     * 向设备发送设置触屏密码指令
+     * @param passowrd  触屏密码
+     */
+    public static void setScreenPassword(int passowrd){
+        Log.e("设置的触屏密码是: ", String.valueOf(passowrd));
+        BLEUtils.writeChar(BLEUtils.hexStringToBytes(Constant.HEAD_CHAR
+                + Constant.SEVER_BLUETOOTH
+                + "01"
+                + "0b"
+                + BLEUtils.toHexString("123456")
+                + Constant.END_CHAR),MainActivity.BLE);
     }
 }

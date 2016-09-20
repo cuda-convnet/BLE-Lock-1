@@ -1,5 +1,7 @@
 package com.iboxshare.testble.ui.activity;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -9,12 +11,17 @@ import android.view.View;
 
 import com.dd.CircularProgressButton;
 import com.iboxshare.testble.R;
+import com.iboxshare.testble.util.BLEUtils;
+import com.iboxshare.testble.util.BluetoothLeClass;
+import com.iboxshare.testble.util.Constant;
+import com.iboxshare.testble.util.Utils;
 
 /**
  * Created by KN on 16/9/13.
  */
 public class UnlockActivity extends AppCompatActivity {
     private String TAG = "UnlockActivity";
+    public Context context = this;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,15 +32,35 @@ public class UnlockActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.e(TAG,"点击按钮");
-                if (CPB.getProgress() == 100)
-                    CPB.setProgress(50);
-                new Handler().postDelayed(new Runnable() {
+                CPB.setProgress(50);
+                new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        CPB.setProgress(100);
+                        BluetoothLeClass unlockBle = MainActivity.BLE;
+                        unlockBle.setOnDataAvailableListener(MainActivity.onDataAvailableListener);
+                        unlockBle.setOnServiceDiscoverListener(MainActivity.onServiceDiscoverListener);
+
+                        BLEUtils.writeChar(BLEUtils.hexStringToBytes(Constant.HEAD_CHAR + "01" + "05" + BLEUtils.toHexString("123456789abcdefg") + Constant.END_CHAR),MainActivity.BLE);
+
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        BLEUtils.writeChar(BLEUtils.hexStringToBytes(Constant.HEAD_CHAR + Constant.SEVER_BLUETOOTH + "04" + "09" + BLEUtils.toHexString("root") + Constant.END_CHAR),MainActivity.BLE);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                CPB.setProgress(100);
+                            }
+                        });
                     }
-                }, 3000);
+                }).start();
             }
         });
     }
+
+
+
 }

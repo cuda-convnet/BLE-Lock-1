@@ -42,6 +42,9 @@
 
         <!--解锁界面-->
         <activity android:name=".ui.activity.UnlockActivity"/>
+
+        <activity android:name=".ui.activity.SetScreenPasswordActivity"
+            android:theme="@style/Base.Theme.AppCompat.Dialog"/>
     </application>
 
 </manifest>

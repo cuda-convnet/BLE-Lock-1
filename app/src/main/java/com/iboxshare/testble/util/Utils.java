@@ -3,7 +3,11 @@ package com.iboxshare.testble.util;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.widget.SimpleCursorTreeAdapter;
+import android.widget.Toast;
+
+import org.apache.http.conn.scheme.HostNameResolver;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -84,7 +88,7 @@ public class Utils {
 
 
     /**
-     * 获取对应字段
+     * 获取Profiles对应字段
      * @param context   Context
      * @param field 字段
      * @return 返回的值需要自行进行类型转换
@@ -93,6 +97,24 @@ public class Utils {
         SharedPreferences sharedPreferences = context.getSharedPreferences(USER_PROFILES,Context.MODE_PRIVATE);
         Object obj = sharedPreferences.getString(field,"null");
         return obj;
+    }
+
+
+    static Handler globalHandler = new Handler();
+
+    /**
+     * 全局显示Toast
+     * @param str
+     * @param context
+     */
+    public static void showGlobalToast(final Context context,final String str){
+        globalHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context,str,Toast.LENGTH_SHORT).show();
+
+            }
+        });
     }
 
 
