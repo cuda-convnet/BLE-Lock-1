@@ -41,10 +41,12 @@
         <activity android:name=".ui.activity.MyDevicesActivity"/>
 
         <!--解锁界面-->
-        <activity android:name=".ui.activity.UnlockActivity"/>
+        <activity android:name=".ui.activity.UnlockActivity"
+            android:launchMode="singleTop"/>
 
+        <!--设置解锁密码-->
         <activity android:name=".ui.activity.SetScreenPasswordActivity"
-            android:theme="@style/Base.Theme.AppCompat.Dialog"/>
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

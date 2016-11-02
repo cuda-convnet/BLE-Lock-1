@@ -8,6 +8,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDialog;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 
@@ -63,5 +65,14 @@ public class SetScreenPasswordActivity extends Activity {
             setResult(0);
             Utils.showGlobalToast(context,"取消设置密码");
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            Utils.showGlobalToast(context,"请设置触屏解锁密码");
+            return false;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

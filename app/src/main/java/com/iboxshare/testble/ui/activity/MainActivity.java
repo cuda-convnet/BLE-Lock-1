@@ -9,10 +9,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.internal.NavigationMenu;
 import android.support.design.internal.ParcelableSparseArray;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.bumptech.glide.util.Util;
@@ -42,7 +46,8 @@ public class MainActivity extends AppCompatActivity {
     private List<DeviceInfo> deviceList = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
     private EasyRecyclerView easyRecyclerView;
-
+    private NavigationView navigationView;
+    private DrawerLayout drawerLayout;
 
     //蓝牙相关
     private BluetoothAdapter bluetoothAdapter;
@@ -54,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
     public static BluetoothLeClass.OnDataAvailableListener onDataAvailableListener;
     public static BluetoothLeClass.OnServiceDiscoverListener onServiceDiscoverListener;
 
+
+    //Flags
+    private static int currentCheckedMenuItem = R.id.menu_main_drawer_devices;
     /**
      * onCreate
      *
@@ -83,13 +91,23 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
+     * onPause
+     */
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.e(TAG,"onPause");
+        scanDevices(false);
+
+    }
+
+    /**
      * onStop
      */
     @Override
     protected void onStop() {
         super.onStop();
         Log.e(TAG,"onStop");
-        scanDevices(false);
     }
 
 
@@ -136,6 +154,8 @@ public class MainActivity extends AppCompatActivity {
      */
     void bindView() {
         easyRecyclerView = (EasyRecyclerView) findViewById(R.id.activity_main_easyRecyclerView);
+        navigationView = (NavigationView) findViewById(R.id.activity_main_navigation_view);
+        drawerLayout = (DrawerLayout) findViewById(R.id.activity_main_drawer_layout);
     }
 
 
@@ -143,10 +163,41 @@ public class MainActivity extends AppCompatActivity {
      * 初始化
      */
     void init() {
+        //设置侧滑栏
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                int id = item.getItemId();
+                if (id == currentCheckedMenuItem){
+                    drawerLayout.closeDrawers();
+                }else {
+                    switch (id){
+                        case R.id.menu_main_drawer_devices:
+                            Log.e(TAG,"菜单---我的设备");
+                            item.setChecked(true);
+                            drawerLayout.closeDrawers();
+                            break;
+                        case R.id.menu_main_drawer_user_settings:
+                            Log.e(TAG,"菜单---用户设置");
+                            item.setChecked(true);
+                            drawerLayout.closeDrawers();
+                            break;
+                        case R.id.menu_main_drawer_about:
+                            Log.e(TAG,"菜单---设置");
+                            item.setChecked(true);
+                            drawerLayout.closeDrawers();
+                            break;
+                    }
+                    currentCheckedMenuItem = id;
+                }
+
+                return false;
+            }
+        });
         //获取用户信息中的mac地址列表
         if (!(user.getMac() == null)) {
-//            不能直接这样赋值
-//            macList = user.getMac();
+            //不能直接这样赋值
+            //macList = user.getMac();
             macList.addAll(user.getMac());
             Log.e("DevicesNum", String.valueOf(macList.size()));
             for (String mac :
@@ -191,6 +242,12 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(View view) {
                 //获取到position
                 int position = (int) view.findViewById(R.id.item_device_details_mac).getTag();
+
+                if (deviceList.get(position).getSignal() == -999){
+                    Utils.showGlobalToast(context,"该设备不在附近");
+                    return;
+                }
+
                 if (BLE.connect(deviceList.get(position).getMac())){
                     scanDevices(false);
                     Log.e(TAG,"连接成功!");
@@ -287,6 +344,8 @@ public class MainActivity extends AppCompatActivity {
                     case "aa020f050d":
                         Utils.showGlobalToast(context,"请进行开锁操作");
                         break;
+
+                    //开锁成功
                     case "aa0210050d":
                         Utils.showGlobalToast(context,"开锁成功!");
                         break;
