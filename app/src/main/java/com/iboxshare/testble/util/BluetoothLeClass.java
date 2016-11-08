@@ -253,7 +253,18 @@ public class BluetoothLeClass{
         return mBluetoothManager;
     }
 
+    /**
+     * 返回BluetoothAdapter
+     * @return
+     */
     public BluetoothAdapter getBluetoothAdapter(){
         return mBluetoothAdapter;
+    }
+
+    /**
+     * 停止扫描
+     */
+    public void stopScan(){
+        this.getBluetoothAdapter().cancelDiscovery();
     }
 }

@@ -22,11 +22,12 @@ import com.iboxshare.testble.util.Utils;
 public class UnlockActivity extends AppCompatActivity {
     private String TAG = "UnlockActivity";
     public Context context = this;
+    public static CircularProgressButton CPB;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_unlock);
-        final CircularProgressButton CPB = (CircularProgressButton) findViewById(R.id.activity_unlock_btn);
+        CPB = (CircularProgressButton) findViewById(R.id.activity_unlock_btn);
         CPB.setIndeterminateProgressMode(true);
         CPB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,16 +50,20 @@ public class UnlockActivity extends AppCompatActivity {
                         }
 
                         BLEUtils.writeChar(BLEUtils.hexStringToBytes(Constant.HEAD_CHAR + Constant.SEVER_BLUETOOTH + "04" + "09" + BLEUtils.toHexString("root") + Constant.END_CHAR),MainActivity.BLE);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                CPB.setProgress(100);
-                            }
-                        });
+
+                        //当开锁成功时，onDataAvailableListener会将CircularProgressButton的progress设置为100
+                        while (true){
+                            if (CPB.getProgress() == 100) UnlockActivity.this.finish();
+
+                        }
                     }
                 }).start();
             }
         });
+
+
+
+
     }
 
 

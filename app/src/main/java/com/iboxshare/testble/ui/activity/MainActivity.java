@@ -4,24 +4,20 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.internal.NavigationMenu;
-import android.support.design.internal.ParcelableSparseArray;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-
-import com.bumptech.glide.util.Util;
 import com.iboxshare.testble.R;
 import com.iboxshare.testble.adapter.DevicesAdapter;
+import com.iboxshare.testble.custom_views.ToolbarActivity;
 import com.iboxshare.testble.model.DeviceInfo;
 import com.iboxshare.testble.model.UserInfo;
 import com.iboxshare.testble.myInterface.RecyclerViewOnItemClickListener;
@@ -37,7 +33,7 @@ import java.util.List;
 /**
  * Created by KN on 16/9/7.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends ToolbarActivity {
     private String TAG = "MainActivity";
     private Context context = this;
     private UserInfo user;
@@ -48,10 +44,10 @@ public class MainActivity extends AppCompatActivity {
     private EasyRecyclerView easyRecyclerView;
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
+    private Toolbar toolbar;
+
 
     //蓝牙相关
-    private BluetoothAdapter bluetoothAdapter;
-    private BluetoothManager bluetoothManager;
     public static BluetoothLeClass BLE;
 
     //回调相关
@@ -118,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.e(TAG,"onDestroy");
+        BLE.stopScan();
         BLE.disconnect();
 
     }
@@ -156,6 +153,9 @@ public class MainActivity extends AppCompatActivity {
         easyRecyclerView = (EasyRecyclerView) findViewById(R.id.activity_main_easyRecyclerView);
         navigationView = (NavigationView) findViewById(R.id.activity_main_navigation_view);
         drawerLayout = (DrawerLayout) findViewById(R.id.activity_main_drawer_layout);
+        setToolbar(false);
+        toolbar = getToolbar();
+
     }
 
 
@@ -163,6 +163,9 @@ public class MainActivity extends AppCompatActivity {
      * 初始化
      */
     void init() {
+        //设置Toolbar
+        toolbar.setTitle("我的设备");
+
         //设置侧滑栏
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -194,6 +197,10 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+
+
+
         //获取用户信息中的mac地址列表
         if (!(user.getMac() == null)) {
             //不能直接这样赋值
@@ -230,7 +237,6 @@ public class MainActivity extends AppCompatActivity {
         //初始化蓝牙
         if (BLE.initialize()){
             Log.e(TAG,"蓝牙初始化成功");
-            bluetoothAdapter = BLE.getBluetoothAdapter();
         }else{
             Log.e(TAG,"蓝牙初始化失败");
         }
@@ -348,6 +354,14 @@ public class MainActivity extends AppCompatActivity {
                     //开锁成功
                     case "aa0210050d":
                         Utils.showGlobalToast(context,"开锁成功!");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                UnlockActivity.CPB.setProgress(100);
+                            }
+                        });
+
+                        BLE.disconnect();
                         break;
                 }
             }
@@ -359,12 +373,12 @@ public class MainActivity extends AppCompatActivity {
      */
     void scanDevices(boolean enable){
 
-        if (bluetoothAdapter != null){
+        if (BLE.getBluetoothAdapter() != null){
             if (enable){
-                bluetoothAdapter.startLeScan(leScanCallback);
+                BLE.getBluetoothAdapter().startLeScan(leScanCallback);
 
             }else {
-                bluetoothAdapter.stopLeScan(leScanCallback);
+                BLE.getBluetoothAdapter().stopLeScan(leScanCallback);
             }
         }
     }
