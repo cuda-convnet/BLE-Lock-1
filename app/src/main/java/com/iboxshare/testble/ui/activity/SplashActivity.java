@@ -10,6 +10,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.AnimationSet;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.iboxshare.testble.R;
 import com.iboxshare.testble.model.UserInfo;
@@ -24,12 +28,14 @@ import java.util.List;
 public class SplashActivity extends AppCompatActivity{
     private Context context = this;
     private UserInfo user;
+    String token;
+    Intent intent = new Intent();
     String[] PERMISSIONS = {"android.permission.ACCESS_FINE_LOCATION","android.permission.ACCESS_COARSE_LOCATION"};
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            Intent intent = new Intent();
+
             switch (msg.what){
                 case 0:
                     intent.setClass(context,LoginActivity.class);
@@ -38,12 +44,19 @@ public class SplashActivity extends AppCompatActivity{
                     break;
                 case 1:
                     Log.e("登录成功","UserName === " + user.getUser_name());
-                    intent.setClass(context,MainActivity.class);
-                    Bundle data = new Bundle();
-                    data.putSerializable("user",user);
-                    intent.putExtras(data);
-                    startActivity(intent);
-                    finish();
+                    startAnimation();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            intent.setClass(context,MainActivity.class);
+                            Bundle data = new Bundle();
+                            data.putSerializable("user",user);
+                            data.putString("token",token);
+                            intent.putExtras(data);
+                            startActivity(intent);
+                            finish();
+                        }
+                    },5000);
                     break;
             }
         }
@@ -58,9 +71,19 @@ public class SplashActivity extends AppCompatActivity{
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             this.requestPermissions(PERMISSIONS,1);
         }
+//
+//        try {
+//            Thread.sleep(2000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+
+
+
 
         //利用Token进行自动登录
-        final String token = (String) Utils.getUserProfiles(context,Utils.USER_PROFILES_TOKEN);
+        token = (String) Utils.getUserProfiles(context,Utils.USER_PROFILES_TOKEN);
         if (token == null){
             //无Token需要手动登录
             Intent intent = new Intent(context,LoginActivity.class);
@@ -76,6 +99,7 @@ public class SplashActivity extends AppCompatActivity{
                         handler.sendEmptyMessage(0);
                     } else {
                         //自动登录成功
+
                         handler.sendEmptyMessage(1);
                     }
                 }
@@ -92,5 +116,19 @@ public class SplashActivity extends AppCompatActivity{
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+
+
+
+    void startAnimation(){
+        //动画相关
+        AnimationSet animationSet = new AnimationSet(true);
+        AlphaAnimation alphaAnimation = new AlphaAnimation(1,0);
+        alphaAnimation.setDuration(5000);
+        alphaAnimation.setFillAfter(true);
+        animationSet.addAnimation(alphaAnimation);
+
+        findViewById(R.id.activity_splash_layout).startAnimation(animationSet);
     }
 }

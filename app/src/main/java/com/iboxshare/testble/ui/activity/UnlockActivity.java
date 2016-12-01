@@ -68,4 +68,11 @@ public class UnlockActivity extends AppCompatActivity {
 
 
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.e(TAG,"onDestroy");
+        MainActivity.BLE.disconnect();
+        MainActivity.BLE.close();
+    }
 }

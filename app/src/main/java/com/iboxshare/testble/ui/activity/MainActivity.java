@@ -6,6 +6,8 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -13,17 +15,27 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ListView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.util.Util;
 import com.iboxshare.testble.R;
 import com.iboxshare.testble.adapter.DevicesAdapter;
-import com.iboxshare.testble.custom_views.ToolbarActivity;
+import com.iboxshare.testble.custom_views.BaseActivity;
 import com.iboxshare.testble.model.DeviceInfo;
 import com.iboxshare.testble.model.UserInfo;
 import com.iboxshare.testble.myInterface.RecyclerViewOnItemClickListener;
 import com.iboxshare.testble.util.BLEUtils;
 import com.iboxshare.testble.util.BluetoothLeClass;
+import com.iboxshare.testble.util.CircleTransform;
 import com.iboxshare.testble.util.Constant;
+import com.iboxshare.testble.util.PostTool;
 import com.iboxshare.testble.util.Utils;
 import com.jude.easyrecyclerview.EasyRecyclerView;
 
@@ -33,7 +45,7 @@ import java.util.List;
 /**
  * Created by KN on 16/9/7.
  */
-public class MainActivity extends ToolbarActivity {
+public class MainActivity extends BaseActivity {
     private String TAG = "MainActivity";
     private Context context = this;
     private UserInfo user;
@@ -45,7 +57,7 @@ public class MainActivity extends ToolbarActivity {
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
-
+    private ImageView background;
 
     //蓝牙相关
     public static BluetoothLeClass BLE;
@@ -58,6 +70,8 @@ public class MainActivity extends ToolbarActivity {
 
     //Flags
     private static int currentCheckedMenuItem = R.id.menu_main_drawer_devices;
+
+
     /**
      * onCreate
      *
@@ -69,9 +83,8 @@ public class MainActivity extends ToolbarActivity {
         setContentView(R.layout.activity_main);
         user = (UserInfo) getIntent().getExtras().get("user");
         bindView();
-        init();
+        //init();
         initCallback();
-
     }
 
 
@@ -82,6 +95,8 @@ public class MainActivity extends ToolbarActivity {
     protected void onResume() {
         super.onResume();
         Log.e(TAG,"onResume");
+        init();
+        BLE.startScan();
         scanDevices(true);
     }
 
@@ -93,17 +108,8 @@ public class MainActivity extends ToolbarActivity {
     protected void onPause() {
         super.onPause();
         Log.e(TAG,"onPause");
+        BLE.stopScan();
         scanDevices(false);
-
-    }
-
-    /**
-     * onStop
-     */
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.e(TAG,"onStop");
     }
 
 
@@ -116,6 +122,7 @@ public class MainActivity extends ToolbarActivity {
         Log.e(TAG,"onDestroy");
         BLE.stopScan();
         BLE.disconnect();
+        BLE.close();
 
     }
 
@@ -153,6 +160,7 @@ public class MainActivity extends ToolbarActivity {
         easyRecyclerView = (EasyRecyclerView) findViewById(R.id.activity_main_easyRecyclerView);
         navigationView = (NavigationView) findViewById(R.id.activity_main_navigation_view);
         drawerLayout = (DrawerLayout) findViewById(R.id.activity_main_drawer_layout);
+        background = (ImageView) findViewById(R.id.activity_main_background);
         setToolbar(false);
         toolbar = getToolbar();
 
@@ -163,8 +171,19 @@ public class MainActivity extends ToolbarActivity {
      * 初始化
      */
     void init() {
+        Log.e(TAG,"Init()");
+
         //设置Toolbar
         toolbar.setTitle("我的设备");
+
+        //设置背景
+        Glide.with(context)
+                .load(R.drawable.ic_bluetooth_light_blue_600_48dp)
+                .asBitmap()
+                .dontAnimate()
+                .into(background);
+//        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_bluetooth_disabled_light_blue_600_48dp);
+//        background.setImageBitmap(bitmap);
 
         //设置侧滑栏
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -214,6 +233,14 @@ public class MainActivity extends ToolbarActivity {
                     device.setName("设备不在附近");
                     device.setSignal(-999);
                     device.setMac(mac);
+
+                    //防止设备被重复添加
+                    for (DeviceInfo deviceInList : deviceList){
+                        if (deviceInList.getMac().equals(mac)){
+                            return;
+                        }
+
+                    }
                     deviceList.add(device);
                 }
 
@@ -224,13 +251,6 @@ public class MainActivity extends ToolbarActivity {
             easyRecyclerView.setAdapter(adapter);
         }
 
-//        bluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
-//        bluetoothAdapter = bluetoothManager.getAdapter();
-//        if (bluetoothAdapter != null){
-//            bluetoothAdapter.enable();
-//        }else {
-//            Log.e(TAG,"初始化蓝牙适配器失败");
-//        }
 
         BLE = new BluetoothLeClass(context);
 
@@ -373,6 +393,7 @@ public class MainActivity extends ToolbarActivity {
      */
     void scanDevices(boolean enable){
 
+
         if (BLE.getBluetoothAdapter() != null){
             if (enable){
                 BLE.getBluetoothAdapter().startLeScan(leScanCallback);
@@ -390,7 +411,7 @@ public class MainActivity extends ToolbarActivity {
      * @param name  设备名称
      * @param rssi  信号强度
      */
-    void updateDeviceInfo(String mac,String name,int rssi){
+     void updateDeviceInfo(String mac,String name,int rssi){
         for (DeviceInfo device:
              deviceList) {
             if (device.getMac().equals(mac)){
@@ -409,11 +430,44 @@ public class MainActivity extends ToolbarActivity {
      */
     public static void setScreenPassword(int passowrd){
         Log.e("设置的触屏密码是: ", String.valueOf(passowrd));
+        String md5Password = Utils.MD5(String.valueOf(passowrd),Utils.MD5_SHORT);
+        Log.e("加密后的密码是:",md5Password);
         BLEUtils.writeChar(BLEUtils.hexStringToBytes(Constant.HEAD_CHAR
                 + Constant.SEVER_BLUETOOTH
                 + "01"
                 + "0b"
-                + BLEUtils.toHexString("123456")
+                + BLEUtils.toHexString(String.valueOf(passowrd))
                 + Constant.END_CHAR),MainActivity.BLE);
     }
+
+
+    /**
+     * 创建Toolbar右上角menu
+     * @param menu
+     * @return
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        new MenuInflater(context).inflate(R.menu.menu_main_add_devices,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.e(TAG,"addNewDevices");
+        switch (item.getItemId()){
+            case R.id.add_devices:
+                Intent intent = new Intent(MainActivity.this,AddDevicesByMacActivity.class);
+                intent.putExtra("user",user);
+                startActivity(intent);
+
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+
+
 }

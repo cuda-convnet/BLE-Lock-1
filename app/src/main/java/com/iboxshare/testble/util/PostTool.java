@@ -55,6 +55,7 @@ public class PostTool {
                     //登录失败
                     case -1:
                     case 0:
+                        Log.e("123","登录失败");
                         return user;
                     //登录成功
                     case 1:
@@ -146,6 +147,38 @@ public class PostTool {
             e.printStackTrace();
         }
         return user;
+    }
+
+
+    public static boolean addDevicesByMac(String mac,String lockName,String admin){
+        requestBody = new FormBody.Builder()
+                .add("admin",admin)
+                .add("mac",mac)
+                .add("lockName",lockName)
+                .build();
+        request = new Request.Builder()
+                .post(requestBody)
+                .url(API_URL.ADD_DEVICES_BY_MAC_URL)
+                .build();
+        int resultCode = -1;
+        String resultJsonStr = null;
+        try {
+            response = client.newCall(request).execute();
+            resultJsonStr = response.body().string();
+            JSONObject jsonObject = new JSONObject(resultJsonStr);
+            resultCode = jsonObject.getInt("result");
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+        switch (resultCode){
+            case -1:
+                Log.e("失败",resultJsonStr);
+                return false;
+            case 1:
+                return true;
+            default:
+                return false;
+        }
     }
 
 }

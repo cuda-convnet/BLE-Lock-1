@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:paddingStart="15dp"
+    android:paddingEnd="15dp"
+    android:background="@color/colorPrimary">
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColorHint="@color/white">
+        <EditText
+            android:id="@+id/activity_add_devices_by_mac_mac_ET"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入设备的mac地址" />
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColorHint="@color/white">
+        <EditText
+            android:id="@+id/activity_add_devices_by_mac_lock_name_ET"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入设备名称" />
+    </android.support.design.widget.TextInputLayout>
+    <com.dd.CircularProgressButton
+        android:id="@+id/activity_add_devices_by_mac_btn"
+        android:layout_width="196dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="16dp"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:cpb_textComplete="设备注册成功"
+        app:cpb_textError="此设备已被注册"
+        app:cpb_textIdle="注册设备"
+        android:layout_gravity="center"/>
+</LinearLayout>

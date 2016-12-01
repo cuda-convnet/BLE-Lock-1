@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.os.Handler;
+import android.util.Log;
 import android.widget.SimpleCursorTreeAdapter;
 import android.widget.Toast;
 
@@ -96,6 +97,7 @@ public class Utils {
     public static Object getUserProfiles(Context context,String field){
         SharedPreferences sharedPreferences = context.getSharedPreferences(USER_PROFILES,Context.MODE_PRIVATE);
         Object obj = sharedPreferences.getString(field,"null");
+        Log.e("obj",(String)obj);
         return obj;
     }
 

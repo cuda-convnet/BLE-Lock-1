@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 
 import com.iboxshare.testble.R;
 import com.iboxshare.testble.adapter.DevicesAdapter;
@@ -153,35 +154,15 @@ public class AddDeviceActivity extends AppCompatActivity implements View.OnClick
                 int position = (int) view.findViewById(R.id.item_device_details_mac).getTag();
                 Log.e(TAG, String.valueOf(position));
                 Log.e(TAG, deviceInfoList.get(position).getMac());
-                boolean connectResult = BLE.connect(deviceInfoList.get(position).getMac());
-                if (connectResult) {
-                    Log.e(TAG, "蓝牙连接成功");
+                String mac = deviceInfoList.get(position).getMac();
 
-                    //连接蓝牙后停止扫描
-                    scanDevices(false);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
 
-                    //为BLE设置OnServiceDiscoverListener
-                    BLE.setOnServiceDiscoverListener(serviceDiscoverListener);
-
-                    //为BLE设置OnDataAvailableListener
-                    BLE.setOnDataAvailableListener(dataAvailableListener);
-
-
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
                     }
-                    //aa151 0d
-                    BLEUtils.writeChar(BLEUtils.hexStringToBytes(Constant.HEAD_CHAR + "01" + "05" + BLEUtils.toHexString("123456789abcdefg") + Constant.END_CHAR),BLE);
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    BLEUtils.writeChar(BLEUtils.hexStringToBytes(Constant.HEAD_CHAR + Constant.SEVER_BLUETOOTH + "04" + "09" + BLEUtils.toHexString("root") + Constant.END_CHAR),BLE);
+                }).start();
 
-                }
 
             }
         });
@@ -197,7 +178,7 @@ public class AddDeviceActivity extends AppCompatActivity implements View.OnClick
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 //            bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
 //        }
-        String bluetoothAddress = bluetoothAdapter.getAddress();
+        String bluetoothAddress = BLE.getBluetoothAdapter().getAddress();
         Log.e(TAG, bluetoothAddress);
 
         BLE = new BluetoothLeClass(this);

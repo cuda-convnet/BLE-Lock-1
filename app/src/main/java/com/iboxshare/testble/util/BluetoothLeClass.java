@@ -75,7 +75,6 @@ public class BluetoothLeClass{
                 // Attempts to discover services after successful connection.
                 Log.i(TAG, "Attempting to start service discovery:" +
                         mBluetoothGatt.discoverServices());
-
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 if(mOnDisconnectListener!=null)
                     mOnDisconnectListener.onDisconnect(gatt);
@@ -240,7 +239,6 @@ public class BluetoothLeClass{
      */
     public List<BluetoothGattService> getSupportedGattServices() {
         if (mBluetoothGatt == null) return null;
-
         return mBluetoothGatt.getServices();
     }
 
@@ -261,10 +259,15 @@ public class BluetoothLeClass{
         return mBluetoothAdapter;
     }
 
+    public void startScan(){
+        if (this.getBluetoothAdapter() != null)
+            this.getBluetoothAdapter().startDiscovery();
+    }
     /**
      * 停止扫描
      */
     public void stopScan(){
-        this.getBluetoothAdapter().cancelDiscovery();
+        if (this.getBluetoothAdapter() != null)
+            this.getBluetoothAdapter().cancelDiscovery();
     }
 }
